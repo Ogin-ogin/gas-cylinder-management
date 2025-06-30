@@ -1,7 +1,7 @@
 // ...ナビゲーションコンポーネント雛形...
 import Link from 'next/link';
 
-export default function Navigation({ token }: { token: string }) {
+export default function Navigation({ token }: { token?: string }) {
   return (
     <nav className="bg-white shadow p-4 flex gap-4">
       <Link href={`/${token}`}>ダッシュボード</Link>
