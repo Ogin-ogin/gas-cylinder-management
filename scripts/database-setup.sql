@@ -11,6 +11,17 @@ CREATE TABLE IF NOT EXISTS access_tokens (
   access_count INTEGER DEFAULT 0
 );
 
+-- qr_codes（順番を先に変更）
+CREATE TABLE IF NOT EXISTS qr_codes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  cylinder_id UUID REFERENCES cylinders(id),
+  url TEXT NOT NULL,
+  qr_number INTEGER UNIQUE NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW(),
+  token_id UUID REFERENCES access_tokens(id)
+);
+
 -- cylinders
 CREATE TABLE IF NOT EXISTS cylinders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -24,17 +35,6 @@ CREATE TABLE IF NOT EXISTS cylinders (
   last_updated TIMESTAMP DEFAULT NOW(),
   qr_code_id UUID REFERENCES qr_codes(id),
   qr_number INTEGER,
-  token_id UUID REFERENCES access_tokens(id)
-);
-
--- qr_codes
-CREATE TABLE IF NOT EXISTS qr_codes (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  cylinder_id UUID REFERENCES cylinders(id),
-  url TEXT NOT NULL,
-  qr_number INTEGER UNIQUE NOT NULL,
-  is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMP DEFAULT NOW(),
   token_id UUID REFERENCES access_tokens(id)
 );
 
