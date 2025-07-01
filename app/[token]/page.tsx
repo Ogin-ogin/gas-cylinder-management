@@ -18,6 +18,9 @@ export default function DashboardPage() {
   const [cylinders, setCylinders] = useState<Cylinder[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  // tokenをparamsから取得
+  const params = router as any;
+  const token = typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : '';
 
   useEffect(() => {
     const fetchCylinders = async () => {
@@ -55,7 +58,7 @@ export default function DashboardPage() {
               <div
                 key={c.id}
                 className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition border border-gray-100"
-                onClick={() => router.push(`./cylinder/${c.id}`)}
+                onClick={() => router.push(`/${token}/cylinder/${c.id}`)}
                 style={{ fontFamily: 'Inter, Noto Sans JP, Segoe UI, system-ui, sans-serif' }}
               >
                 <div className="font-bold text-lg mb-1">{c.container_number}</div>
