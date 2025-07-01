@@ -4,9 +4,8 @@ import { supabase } from '../../lib/supabase';
 import { Cylinder } from '../../types';
 import { useRouter } from 'next/navigation';
 
-// 仮: 設定ページで指定する閾値（後で連携）
-const PRESSURE_THRESHOLD = 5; // MPa
-const DEADLINE_DAYS = 7; // 日
+const PRESSURE_THRESHOLD = 5;
+const DEADLINE_DAYS = 7;
 
 function daysUntil(dateStr: string) {
   const today = new Date();
@@ -18,8 +17,6 @@ export default function DashboardPage() {
   const [cylinders, setCylinders] = useState<Cylinder[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  // tokenをparamsから取得
-  const params = router as any;
   const token = typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : '';
 
   useEffect(() => {
@@ -32,24 +29,33 @@ export default function DashboardPage() {
     fetchCylinders();
   }, []);
 
-  if (loading) return <div className="p-4">読み込み中...</div>;
+  if (loading) return <div className="p-8 text-center text-gray-400">読み込み中...</div>;
 
   const lowPressure = cylinders.filter((c: Cylinder) => c.current_pressure < PRESSURE_THRESHOLD).length;
   const nearDeadline = cylinders.filter((c: Cylinder) => daysUntil(c.return_deadline) <= DEADLINE_DAYS).length;
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">ダッシュボード</h2>
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white p-4 rounded shadow">総ボンベ数: {cylinders.length}</div>
-        <div className="bg-white p-4 rounded shadow">低残圧ボンベ数: {lowPressure}</div>
-        <div className="bg-white p-4 rounded shadow">期限間近ボンベ数: {nearDeadline}</div>
+    <div className="p-8">
+      <h2 className="text-2xl font-bold mb-8 tracking-tight">ダッシュボード</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] p-6 text-center">
+          <div className="text-sm text-gray-500 mb-1">総ボンベ数</div>
+          <div className="text-3xl font-bold">{cylinders.length}</div>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] p-6 text-center">
+          <div className="text-sm text-gray-500 mb-1">低残圧ボンベ数</div>
+          <div className="text-3xl font-bold text-red-500">{lowPressure}</div>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] p-6 text-center">
+          <div className="text-sm text-gray-500 mb-1">期限間近ボンベ数</div>
+          <div className="text-3xl font-bold text-orange-500">{nearDeadline}</div>
+        </div>
       </div>
-      <h3 className="text-lg font-semibold mb-2">ボンベ一覧</h3>
+      <h3 className="text-lg font-semibold mb-4 tracking-tight">ボンベ一覧</h3>
       {cylinders.length === 0 ? (
-        <div>ボンベがありません</div>
+        <div className="text-gray-400">ボンベがありません</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cylinders.map((c: Cylinder) => {
             const pressurePercent = Math.max(0, Math.min(100, (c.current_pressure / c.initial_pressure) * 100));
             const isLow = c.current_pressure < PRESSURE_THRESHOLD;
@@ -57,24 +63,24 @@ export default function DashboardPage() {
             return (
               <div
                 key={c.id}
-                className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition border border-gray-100"
+                className="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] p-6 cursor-pointer transition-transform duration-200 hover:scale-[1.025] hover:shadow-md"
                 onClick={() => router.push(`/${token}/cylinder/${c.id}`)}
                 style={{ fontFamily: 'Inter, Noto Sans JP, Segoe UI, system-ui, sans-serif' }}
               >
-                <div className="font-bold text-lg mb-1">{c.container_number}</div>
-                <div className="text-gray-600 mb-1">{c.gas_type} / {c.location}</div>
-                <div className="mb-1 flex items-center gap-2">
-                  <span>残圧:</span>
-                  <div className="flex-1 h-3 rounded bg-gray-200 relative min-w-[80px] max-w-[120px]">
+                <div className="font-bold text-lg mb-2 tracking-tight">{c.container_number}</div>
+                <div className="text-gray-500 mb-2">{c.gas_type} / {c.location}</div>
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="text-xs text-gray-500">残圧</span>
+                  <div className="flex-1 h-3 rounded bg-[#e5e7eb] relative min-w-[80px] max-w-[120px]">
                     <div
-                      className={`h-3 rounded transition-all ${isLow ? 'bg-red-500' : 'bg-blue-500'}`}
+                      className={`h-3 rounded transition-all ${isLow ? 'bg-red-400' : 'bg-blue-400'}`}
                       style={{ width: `${pressurePercent}%` }}
                     />
                   </div>
-                  <span className={isLow ? 'text-red-500 font-bold' : ''}>{c.current_pressure} MPa</span>
+                  <span className={isLow ? 'text-red-500 font-bold' : 'text-gray-700'}>{c.current_pressure} MPa</span>
                 </div>
-                <div className="mb-1">QRコード: <span className="font-mono">{c.qr_number ?? '-'}</span></div>
-                <div className="mb-1">返却期限: <span className={isNearDeadline ? 'text-red-500 font-bold' : ''}>{c.return_deadline}</span></div>
+                <div className="mb-2 text-xs text-gray-500">QRコード: <span className="font-mono text-gray-700">{c.qr_number ?? '-'}</span></div>
+                <div className="mb-1 text-xs text-gray-500">返却期限: <span className={isNearDeadline ? 'text-red-500 font-bold' : 'text-gray-700'}>{c.return_deadline}</span></div>
               </div>
             );
           })}

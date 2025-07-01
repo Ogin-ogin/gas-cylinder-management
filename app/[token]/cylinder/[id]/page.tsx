@@ -23,27 +23,27 @@ export default function CylinderDetailPage() {
     if (id) fetchDetail();
   }, [id]);
 
-  if (loading) return <div className="p-4">読み込み中...</div>;
-  if (!cylinder) return <div className="p-4">データがありません</div>;
+  if (loading) return <div className="p-8 text-center text-gray-400">読み込み中...</div>;
+  if (!cylinder) return <div className="p-8 text-center text-gray-400">データがありません</div>;
 
   return (
-    <div className="p-4 max-w-2xl mx-auto space-y-6">
-      <h2 className="text-xl font-bold mb-2">ボンベ詳細</h2>
+    <div className="p-8 max-w-2xl mx-auto space-y-8 bg-white rounded-2xl shadow-sm border border-[#e5e7eb]">
+      <h2 className="text-2xl font-bold mb-4 tracking-tight">ボンベ詳細</h2>
       {/* 残圧即時更新 */}
-      <div className="bg-white rounded shadow p-4 mb-4">
-        <h3 className="font-semibold mb-2">残圧をすぐに更新</h3>
+      <section className="rounded-xl bg-[#f9fafb] p-6 mb-6 shadow-sm">
+        <h3 className="font-semibold mb-3 text-lg">残圧をすぐに更新</h3>
         <UpdatePressureDialog cylinderId={cylinder.id} />
-      </div>
+      </section>
       {/* 編集フォーム */}
-      <div className="bg-white rounded shadow p-4 mb-4">
-        <h3 className="font-semibold mb-2">登録情報の編集</h3>
+      <section className="rounded-xl bg-[#f9fafb] p-6 mb-6 shadow-sm">
+        <h3 className="font-semibold mb-3 text-lg">登録情報の編集</h3>
         <EditCylinderDialog cylinder={cylinder} />
-      </div>
+      </section>
       {/* 残圧履歴グラフ */}
-      <div className="bg-white rounded shadow p-4">
-        <h3 className="font-semibold mb-2">残圧履歴グラフ</h3>
+      <section className="rounded-xl bg-[#f9fafb] p-6 shadow-sm">
+        <h3 className="font-semibold mb-3 text-lg">残圧履歴グラフ</h3>
         <PressureChart cylinderId={cylinder.id} />
-      </div>
+      </section>
     </div>
   );
 }
