@@ -1,7 +1,7 @@
 import React from 'react';
 import Navigation from '../../components/navigation';
 
-export default function TokenLayout({ children, params }: { children: React.ReactNode; params: { token: string } }) {
+export default function TokenLayout({ children, params }: any) {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation token={params.token} />
