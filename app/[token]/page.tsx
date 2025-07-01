@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Cylinder } from '../../types';
+import { useRouter } from 'next/navigation';
 
 function daysUntil(dateStr: string) {
   const today = new Date();
@@ -12,6 +13,7 @@ function daysUntil(dateStr: string) {
 export default function DashboardPage() {
   const [cylinders, setCylinders] = useState<Cylinder[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCylinders = async () => {
@@ -40,28 +42,22 @@ export default function DashboardPage() {
       {cylinders.length === 0 ? (
         <div>ボンベがありません</div>
       ) : (
-        <table className="min-w-full bg-white rounded shadow">
-          <thead>
-            <tr>
-              <th className="p-2">番号</th>
-              <th className="p-2">ガス種</th>
-              <th className="p-2">設置場所</th>
-              <th className="p-2">残圧(MPa)</th>
-              <th className="p-2">返却期限</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cylinders.map((c: Cylinder) => (
-              <tr key={c.id} className="border-t">
-                <td className="p-2">{c.container_number}</td>
-                <td className="p-2">{c.gas_type}</td>
-                <td className="p-2">{c.location}</td>
-                <td className="p-2">{c.current_pressure}</td>
-                <td className="p-2">{c.return_deadline}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {cylinders.map((c: Cylinder) => (
+            <div
+              key={c.id}
+              className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition border border-gray-100"
+              onClick={() => router.push(`./cylinder/${c.id}`)}
+              style={{ fontFamily: 'Inter, Noto Sans JP, Segoe UI, system-ui, sans-serif' }}
+            >
+              <div className="font-bold text-lg mb-1">{c.container_number}</div>
+              <div className="text-gray-600 mb-1">{c.gas_type} / {c.location}</div>
+              <div className="mb-1">残圧: <span className={c.current_pressure < 5 ? 'text-red-500 font-bold' : ''}>{c.current_pressure} MPa</span></div>
+              <div className="mb-1">返却期限: <span className={daysUntil(c.return_deadline) <= 7 ? 'text-orange-500 font-bold' : ''}>{c.return_deadline}</span></div>
+              <div className="text-xs text-gray-400">クリックで詳細・編集</div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
