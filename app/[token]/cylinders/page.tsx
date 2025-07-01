@@ -1,8 +1,12 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../../../lib/supabase';
-import { Cylinder } from '../../../types';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card } from "../../../components/ui/card";
+import { Badge } from "../../../components/ui/badge";
+import { Alert } from "../../../components/ui/alert";
+import { Cylinder } from "../../../types";
+import { supabase } from "../../../lib/supabase";
+import { QrCode, Gauge, MapPin, Calendar, Clock, AlertTriangle } from "lucide-react";
 
 const PRESSURE_THRESHOLD = 5;
 const DEADLINE_DAYS = 7;
@@ -17,25 +21,39 @@ export default function CylindersPage() {
   const [cylinders, setCylinders] = useState<Cylinder[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const token = typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : '';
+  const token = typeof window !== "undefined" ? window.location.pathname.split("/")[1] : "";
 
   useEffect(() => {
     const fetchCylinders = async () => {
       setLoading(true);
-      const { data, error } = await supabase.from('cylinders').select('*');
+      const { data, error } = await supabase.from("cylinders").select("*");
       if (!error && data) setCylinders(data);
       setLoading(false);
     };
     fetchCylinders();
   }, []);
 
-  if (loading) return <div className="p-8 text-center text-gray-400">読み込み中...</div>;
+  if (loading) return (
+    <div className="space-y-6">
+      <div className="h-8 bg-muted rounded animate-pulse w-1/3" />
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="h-96 bg-muted rounded animate-pulse" />
+          <div className="h-64 bg-muted rounded animate-pulse" />
+        </div>
+        <div className="h-96 bg-muted rounded animate-pulse" />
+      </div>
+    </div>
+  );
 
   return (
-    <div className="p-8">
-      <h2 className="text-2xl font-bold mb-8 tracking-tight">ボンベ一覧</h2>
+    <div className="p-8 space-y-8">
+      <h2 className="text-2xl font-bold tracking-tight">ボンベ一覧</h2>
       {cylinders.length === 0 ? (
-        <div className="text-gray-400">ボンベがありません</div>
+        <Alert variant="default">
+          <AlertTriangle className="h-4 w-4 mr-2" />
+          ボンベがありません
+        </Alert>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cylinders.map((c: Cylinder) => {
@@ -43,15 +61,21 @@ export default function CylindersPage() {
             const isLow = c.current_pressure < PRESSURE_THRESHOLD;
             const isNearDeadline = daysUntil(c.return_deadline) <= DEADLINE_DAYS;
             return (
-              <div
+              <Card
                 key={c.id}
-                className="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] p-6 cursor-pointer transition-transform duration-200 hover:scale-[1.025] hover:shadow-md"
+                className="cursor-pointer transition-transform duration-200 hover:scale-[1.025] hover:shadow-md p-6 rounded-2xl border border-[#e5e7eb] shadow-sm bg-white flex flex-col gap-2"
                 onClick={() => router.push(`/${token}/cylinder/${c.id}`)}
                 style={{ fontFamily: 'Inter, Noto Sans JP, Segoe UI, system-ui, sans-serif' }}
               >
-                <div className="font-bold text-lg mb-2 tracking-tight">{c.container_number}</div>
-                <div className="text-gray-500 mb-2">{c.gas_type} / {c.location}</div>
-                <div className="mb-2 flex items-center gap-2">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-bold text-lg tracking-tight flex-1">{c.container_number}</span>
+                  {c.qr_number && <Badge variant="outline"><QrCode className="h-3 w-3 mr-1 inline" />#{c.qr_number}</Badge>}
+                </div>
+                <div className="text-gray-500 mb-1 flex items-center gap-2">
+                  <Gauge className="h-4 w-4 text-muted-foreground" />{c.gas_type}
+                  <MapPin className="h-4 w-4 text-muted-foreground ml-2" />{c.location}
+                </div>
+                <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs text-gray-500">残圧</span>
                   <div className="flex-1 h-3 rounded bg-[#e5e7eb] relative min-w-[80px] max-w-[120px]">
                     <div
@@ -59,11 +83,19 @@ export default function CylindersPage() {
                       style={{ width: `${pressurePercent}%` }}
                     />
                   </div>
-                  <span className={isLow ? 'text-red-500 font-bold' : 'text-gray-700'}>{c.current_pressure} MPa</span>
+                  <Badge variant={isLow ? "destructive" : "default"}>{c.current_pressure} MPa</Badge>
                 </div>
-                <div className="mb-2 text-xs text-gray-500">QRコード: <span className="font-mono text-gray-700">{c.qr_number ?? '-'}</span></div>
-                <div className="mb-1 text-xs text-gray-500">返却期限: <span className={isNearDeadline ? 'text-red-500 font-bold' : 'text-gray-700'}>{c.return_deadline}</span></div>
-              </div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs text-gray-500">返却期限</span>
+                  <Badge variant={isNearDeadline ? "destructive" : "default"}>{c.return_deadline}</Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs text-gray-500">最終更新</span>
+                  <span className="text-xs text-gray-700">{c.last_updated}</span>
+                </div>
+              </Card>
             );
           })}
         </div>
