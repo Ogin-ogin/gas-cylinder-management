@@ -13,6 +13,7 @@ import QRCodeDialog from "../../../../components/qr-code-dialog";
 import { Cylinder } from "../../../../types";
 import { supabase } from "../../../../lib/supabase";
 import Link from "next/link";
+import { Label } from "../../../../components/ui/label";
 
 export default function CylinderDetailPage() {
   const params = useParams();
@@ -92,112 +93,79 @@ export default function CylinderDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* ヘッダー */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Link href={backUrl}>
-            <Button variant="outline">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              戻る
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold">{cylinder.container_number}</h1>
-            <p className="text-muted-foreground">
-              {cylinder.gas_type} - {cylinder.location}
-            </p>
+    <div className="flex flex-col lg:flex-row justify-between gap-6">
+      <div className="flex-1 space-y-6 min-w-0">
+        {/* 残圧推移グラフ */}
+        <Card className="bg-white rounded-xl shadow-sm p-6">
+          <PressureChart cylinderId={cylinder.id} />
+        </Card>
+        {/* 基本情報 */}
+        <Card className="bg-white rounded-xl shadow-sm p-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">設置場所</p>
+                  <p className="font-medium">{cylinder.location}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Gauge className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">ガス種類</p>
+                  <p className="font-medium">{cylinder.gas_type}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">登録日</p>
+                  <p className="font-medium">{cylinder.register_date}</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">残圧状態</span>
+                <Badge variant={pressureStatus.color as any}>{pressureStatus.status}</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">返却期限</span>
+                <div className="text-right">
+                  <Badge variant={expiryStatus.color as any}>{expiryStatus.status}</Badge>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {expiryStatus.days > 0 ? `${expiryStatus.days}日後` : `${Math.abs(expiryStatus.days)}日経過`}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">最終更新</p>
+                  <p className="font-medium">{cylinder.last_updated}</p>
+                </div>
+              </div>
+              {cylinder.qr_number && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">QRコード</span>
+                  <Badge variant="outline">#{cylinder.qr_number}</Badge>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          {cylinder.qr_number && (
-            <Button variant="outline" onClick={() => setShowQR(true)}>
-              <QrCode className="h-4 w-4 mr-2" />
-              QRコード
-            </Button>
-          )}
-        </div>
+        </Card>
       </div>
-      {/* メインコンテンツ */}
-      <div className="grid gap-6 lg:grid-cols-[2fr_1fr] min-w-0">
-        {/* 左側：グラフと基本情報 */}
-        <div className="space-y-6 min-w-0">
-          {/* 残圧推移グラフ */}
-          <Card>
-            <PressureChart cylinderId={cylinder.id} />
-          </Card>
-          {/* 基本情報 */}
-          <Card>
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">設置場所</p>
-                    <p className="font-medium">{cylinder.location}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Gauge className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">ガス種類</p>
-                    <p className="font-medium">{cylinder.gas_type}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">登録日</p>
-                    <p className="font-medium">{cylinder.register_date}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">残圧状態</span>
-                  <Badge variant={pressureStatus.color as any}>{pressureStatus.status}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">返却期限</span>
-                  <div className="text-right">
-                    <Badge variant={expiryStatus.color as any}>{expiryStatus.status}</Badge>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {expiryStatus.days > 0 ? `${expiryStatus.days}日後` : `${Math.abs(expiryStatus.days)}日経過`}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">最終更新</p>
-                    <p className="font-medium">{cylinder.last_updated}</p>
-                  </div>
-                </div>
-                {cylinder.qr_number && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">QRコード</span>
-                    <Badge variant="outline">#{cylinder.qr_number}</Badge>
-                  </div>
-                )}
-              </div>
-            </div>
-          </Card>
-        </div>
-        {/* 右側：残圧更新・編集 */}
-        <div className="space-y-6 min-w-0 w-full max-w-xs mx-auto">
-          <Card>
-            <div className="p-4">
-              <h3 className="font-semibold mb-3 text-lg">残圧をすぐに更新</h3>
-              <UpdatePressureDialog cylinderId={cylinder.id} />
-            </div>
-          </Card>
-          <Card>
-            <div className="p-4">
-              <h3 className="font-semibold mb-3 text-lg">登録情報の編集</h3>
-              <EditCylinderDialog cylinder={cylinder} />
-            </div>
-          </Card>
-        </div>
+      {/* 右カラム */}
+      <div className="w-full max-w-sm space-y-6">
+        <Card className="bg-muted rounded-xl shadow-sm p-6">
+          <h3 className="font-semibold mb-4 text-lg">残圧をすぐに更新</h3>
+          <UpdatePressureDialog cylinderId={cylinder.id} compact />
+        </Card>
+        <Card className="bg-muted rounded-xl shadow-sm p-6">
+          <h3 className="font-semibold mb-4 text-lg">登録情報の編集</h3>
+          <EditCylinderDialog cylinder={cylinder} compact />
+        </Card>
       </div>
       {/* QRコードダイアログ */}
       {showQR && (

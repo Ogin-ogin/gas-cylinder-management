@@ -4,10 +4,11 @@ import { supabase } from '../lib/supabase';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { ArrowUpRight } from 'lucide-react';
+import { Label } from './ui/label';
 
 // 進捗率: 約60%
 
-export default function UpdatePressureDialog({ cylinderId }: { cylinderId: string }) {
+export default function UpdatePressureDialog({ cylinderId, compact }: { cylinderId: string; compact?: boolean }) {
   const [pressure, setPressure] = useState('');
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
@@ -30,21 +31,23 @@ export default function UpdatePressureDialog({ cylinderId }: { cylinderId: strin
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-3 items-center bg-[#f3f4f6] rounded-xl p-4 shadow-sm">
+    <form onSubmit={handleSubmit} className={`space-y-3 ${compact ? '' : 'flex gap-3 items-center bg-[#f3f4f6] rounded-xl p-4 shadow-sm'}`}>
+      <Label htmlFor="pressure" className="block">新しい残圧 (MPa)</Label>
       <Input
+        id="pressure"
         type="number"
         step="0.01"
         placeholder="新しい残圧 (MPa)"
         value={pressure}
         onChange={e => setPressure(e.target.value)}
         required
-        className="w-32 text-lg px-4 py-2 rounded-lg bg-white border border-[#e5e7eb] focus:ring-2 focus:ring-indigo-200 transition"
+        className={`w-full text-base py-2 ${compact ? '' : 'px-4 rounded-lg bg-white border border-[#e5e7eb] focus:ring-2 focus:ring-indigo-200 transition'}`}
         style={{ fontFamily: 'Inter, Noto Sans JP, Segoe UI, system-ui, sans-serif' }}
       />
       <Button
         type="submit"
         disabled={loading}
-        className="px-5 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-semibold shadow-sm transition-all flex items-center gap-1"
+        className="h-10 text-base w-full rounded-lg"
       >
         {loading ? '更新中...' : <><ArrowUpRight size={18} /> 残圧更新</>}
       </Button>
