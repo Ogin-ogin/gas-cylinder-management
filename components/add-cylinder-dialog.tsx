@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 
 // 進捗率: 約50%
 
-export default function AddCylinderDialog() {
+export default function AddCylinderDialog({ onSubmit, onClose }: { onSubmit: (form: any) => void, onClose: () => void }) {
   const [form, setForm] = useState({
     container_number: '',
     gas_type: '',
@@ -26,19 +26,17 @@ export default function AddCylinderDialog() {
     e.preventDefault();
     setLoading(true);
     setMsg('');
-    const { error } = await supabase.from('cylinders').insert([
-      {
-        ...form,
-        initial_pressure: parseFloat(form.initial_pressure),
-        current_pressure: parseFloat(form.current_pressure)
-      }
-    ]);
+    await onSubmit(form);
     setLoading(false);
-    setMsg(error ? '登録失敗' : '登録完了');
+    setMsg('登録完了');
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
+      <div className="flex justify-between items-center mb-2">
+        <div className="font-bold text-lg">新規ボンベ登録</div>
+        <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl">×</button>
+      </div>
       <Input name="container_number" placeholder="ボンベ番号" value={form.container_number} onChange={handleChange} required />
       <Input name="gas_type" placeholder="ガス種" value={form.gas_type} onChange={handleChange} required />
       <Input name="location" placeholder="設置場所" value={form.location} onChange={handleChange} required />

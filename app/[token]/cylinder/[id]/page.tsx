@@ -23,9 +23,10 @@ export default function CylinderDetailPage() {
   const [showQR, setShowQR] = useState(false);
 
   // 戻るURL生成
+  // /[token]/cylinder/[id] → /[token]/cylinders となるようtokenを抽出
   const pathSegments = pathname.split("/");
-  const managementBaseUrl = pathSegments.slice(0, 3).join("/");
-  const backUrl = `${managementBaseUrl}/cylinders`;
+  const token = pathSegments[1] || "";
+  const backUrl = `/${token}/cylinders`;
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -118,9 +119,9 @@ export default function CylinderDetailPage() {
         </div>
       </div>
       {/* メインコンテンツ */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-[2fr_1fr] min-w-0">
         {/* 左側：グラフと基本情報 */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 min-w-0">
           {/* 残圧推移グラフ */}
           <Card>
             <PressureChart cylinderId={cylinder.id} />
@@ -183,7 +184,7 @@ export default function CylinderDetailPage() {
           </Card>
         </div>
         {/* 右側：残圧更新・編集 */}
-        <div className="space-y-6">
+        <div className="space-y-6 min-w-0 w-full max-w-xs mx-auto">
           <Card>
             <div className="p-4">
               <h3 className="font-semibold mb-3 text-lg">残圧をすぐに更新</h3>
