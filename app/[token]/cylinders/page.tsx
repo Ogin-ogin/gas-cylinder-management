@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
-import { Cylinder } from '../../types';
+import { supabase } from '../../../lib/supabase';
+import { Cylinder } from '../../../types';
 import { useRouter } from 'next/navigation';
 
 const PRESSURE_THRESHOLD = 5;
