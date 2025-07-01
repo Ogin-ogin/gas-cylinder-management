@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Cylinder } from '../../types';
@@ -24,8 +25,8 @@ export default function DashboardPage() {
 
   if (loading) return <div className="p-4">読み込み中...</div>;
 
-  const lowPressure = cylinders.filter(c => c.current_pressure < 5).length;
-  const nearDeadline = cylinders.filter(c => daysUntil(c.return_deadline) <= 7).length;
+  const lowPressure = cylinders.filter((c: Cylinder) => c.current_pressure < 5).length;
+  const nearDeadline = cylinders.filter((c: Cylinder) => daysUntil(c.return_deadline) <= 7).length;
 
   return (
     <div className="p-4">
@@ -50,7 +51,7 @@ export default function DashboardPage() {
             </tr>
           </thead>
           <tbody>
-            {cylinders.map(c => (
+            {cylinders.map((c: Cylinder) => (
               <tr key={c.id} className="border-t">
                 <td className="p-2">{c.container_number}</td>
                 <td className="p-2">{c.gas_type}</td>
