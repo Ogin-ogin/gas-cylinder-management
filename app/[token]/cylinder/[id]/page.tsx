@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { supabase } from '../../../lib/supabase';
-import EditCylinderDialog from '../../../components/edit-cylinder-dialog';
-import PressureChart from '../../../components/pressure-chart';
-import UpdatePressureDialog from '../../../components/update-pressure-dialog';
-import { Cylinder } from '../../../types';
+import { supabase } from '../../../../lib/supabase';
+import EditCylinderDialog from '../../../../components/edit-cylinder-dialog';
+import PressureChart from '../../../../components/pressure-chart';
+import UpdatePressureDialog from '../../../../components/update-pressure-dialog';
+import { Cylinder } from '../../../../types';
 
 export default function CylinderDetailPage() {
   const { id } = useParams();
