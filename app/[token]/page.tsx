@@ -72,7 +72,6 @@ export default function DashboardPage() {
                 </div>
                 <div className="mb-1">QRコード: <span className="font-mono">{c.qr_number ?? '-'}</span></div>
                 <div className="mb-1">返却期限: <span className={isNearDeadline ? 'text-red-500 font-bold' : ''}>{c.return_deadline}</span></div>
-                <div className="text-xs text-gray-400">クリックで詳細・編集</div>
               </div>
             );
           })}

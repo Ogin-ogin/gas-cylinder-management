@@ -5,8 +5,10 @@ import EditCylinderDialog from '../../../../components/edit-cylinder-dialog';
 import PressureChart from '../../../../components/pressure-chart';
 import UpdatePressureDialog from '../../../../components/update-pressure-dialog';
 import { Cylinder } from '../../../../types';
+import { useParams } from 'next/navigation';
 
-export default function CylinderDetailPage({ params }: { params: { token: string; id: string } }) {
+export default function CylinderDetailPage() {
+  const params = useParams() as { token: string; id: string };
   const { id } = params;
   const [cylinder, setCylinder] = useState<Cylinder | null>(null);
   const [loading, setLoading] = useState(true);
