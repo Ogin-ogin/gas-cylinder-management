@@ -4,6 +4,10 @@ import { supabase } from '../../lib/supabase';
 import { Cylinder } from '../../types';
 import { useRouter } from 'next/navigation';
 
+// 仮: 設定ページで指定する閾値（後で連携）
+const PRESSURE_THRESHOLD = 5; // MPa
+const DEADLINE_DAYS = 7; // 日
+
 function daysUntil(dateStr: string) {
   const today = new Date();
   const target = new Date(dateStr);
@@ -27,8 +31,8 @@ export default function DashboardPage() {
 
   if (loading) return <div className="p-4">読み込み中...</div>;
 
-  const lowPressure = cylinders.filter((c: Cylinder) => c.current_pressure < 5).length;
-  const nearDeadline = cylinders.filter((c: Cylinder) => daysUntil(c.return_deadline) <= 7).length;
+  const lowPressure = cylinders.filter((c: Cylinder) => c.current_pressure < PRESSURE_THRESHOLD).length;
+  const nearDeadline = cylinders.filter((c: Cylinder) => daysUntil(c.return_deadline) <= DEADLINE_DAYS).length;
 
   return (
     <div className="p-4">
@@ -43,20 +47,35 @@ export default function DashboardPage() {
         <div>ボンベがありません</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {cylinders.map((c: Cylinder) => (
-            <div
-              key={c.id}
-              className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition border border-gray-100"
-              onClick={() => router.push(`./cylinder/${c.id}`)}
-              style={{ fontFamily: 'Inter, Noto Sans JP, Segoe UI, system-ui, sans-serif' }}
-            >
-              <div className="font-bold text-lg mb-1">{c.container_number}</div>
-              <div className="text-gray-600 mb-1">{c.gas_type} / {c.location}</div>
-              <div className="mb-1">残圧: <span className={c.current_pressure < 5 ? 'text-red-500 font-bold' : ''}>{c.current_pressure} MPa</span></div>
-              <div className="mb-1">返却期限: <span className={daysUntil(c.return_deadline) <= 7 ? 'text-orange-500 font-bold' : ''}>{c.return_deadline}</span></div>
-              <div className="text-xs text-gray-400">クリックで詳細・編集</div>
-            </div>
-          ))}
+          {cylinders.map((c: Cylinder) => {
+            const pressurePercent = Math.max(0, Math.min(100, (c.current_pressure / c.initial_pressure) * 100));
+            const isLow = c.current_pressure < PRESSURE_THRESHOLD;
+            const isNearDeadline = daysUntil(c.return_deadline) <= DEADLINE_DAYS;
+            return (
+              <div
+                key={c.id}
+                className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition border border-gray-100"
+                onClick={() => router.push(`./cylinder/${c.id}`)}
+                style={{ fontFamily: 'Inter, Noto Sans JP, Segoe UI, system-ui, sans-serif' }}
+              >
+                <div className="font-bold text-lg mb-1">{c.container_number}</div>
+                <div className="text-gray-600 mb-1">{c.gas_type} / {c.location}</div>
+                <div className="mb-1 flex items-center gap-2">
+                  <span>残圧:</span>
+                  <div className="flex-1 h-3 rounded bg-gray-200 relative min-w-[80px] max-w-[120px]">
+                    <div
+                      className={`h-3 rounded transition-all ${isLow ? 'bg-red-500' : 'bg-blue-500'}`}
+                      style={{ width: `${pressurePercent}%` }}
+                    />
+                  </div>
+                  <span className={isLow ? 'text-red-500 font-bold' : ''}>{c.current_pressure} MPa</span>
+                </div>
+                <div className="mb-1">QRコード: <span className="font-mono">{c.qr_number ?? '-'}</span></div>
+                <div className="mb-1">返却期限: <span className={isNearDeadline ? 'text-red-500 font-bold' : ''}>{c.return_deadline}</span></div>
+                <div className="text-xs text-gray-400">クリックで詳細・編集</div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
